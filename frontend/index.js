@@ -5,5 +5,5 @@ function join() {
         partyzone.removeChild(partyzone.firstChild)
     }
 
-    partyzone.style.cursor = "url('static/cursor.png'),auto"
+    partyzone.style.cursor = "url('static/cursor.png') 7 0,default"
 }
