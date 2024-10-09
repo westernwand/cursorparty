@@ -113,9 +113,9 @@ window.addEventListener("DOMContentLoaded", () => {
     joinbutton.addEventListener("click", join);
 });
 
-// TODO move cursors as window is resized
-// window.addEventListener("resize", () => {
-//     for (let i = 0; i < cursors.size; i++) {
-//         cursors.
-//     }
-// });
+// move cursors as window is resized
+window.addEventListener("resize", () => {
+    for (let [id, cursor] of cursors) {
+        cursor.move();
+    }
+});
