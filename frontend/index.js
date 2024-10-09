@@ -1,18 +1,29 @@
+// file location for cursor png
+const USER_CURSOR_FILE = 'static/cursor.png';
+const OTHER_CURSOR_FILE = 'static/cursor_gray.png';
+// pixel offsets for locating the "point" of the cursor png
+const CURSOR_X_OFFSET = 7;
+const CURSOR_Y_OFFSET = 0;
+// dimensions of cursor png
+const CURSOR_WIDTH = 31;
+const CURSOR_HEIGHT = 38;
+
 // websocket connecting back to server
 var websocket;
 
 // partyzone div
 var partyzone;
 
-// map existing cursors
+// map for other users' cursors
 var cursors = new Map();
 
+// class containing another user's cursor metadata
 class Cursor {
     constructor(id) {
         this.id = id;
         // create new cursor image
         this.img = document.createElement('img');
-        this.img.src = 'static/cursor.png';
+        this.img.src = OTHER_CURSOR_FILE;
         this.img.class = 'cursor';
         partyzone.appendChild(this.img);
     }
@@ -24,8 +35,14 @@ class Cursor {
 
     move() {
         // move cursor on screen
-        this.img.style.marginLeft = String(this.x * window.innerWidth) + 'px';
-        this.img.style.marginTop = String(this.y * window.innerHeight) + 'px';
+        var clientX = Math.floor(this.x * window.innerWidth);
+        var clientY = Math.floor(this.y * window.innerHeight);
+
+        var xPartyzone = clientX - parseInt(window.getComputedStyle(document.body).getPropertyValue('padding-left')) - CURSOR_X_OFFSET;
+        var yPartyzone = clientY - parseInt(window.getComputedStyle(document.body).getPropertyValue('padding-top')) - CURSOR_Y_OFFSET;
+
+        this.img.style.marginLeft = String(xPartyzone) + 'px';
+        this.img.style.marginTop = String(yPartyzone) + 'px';
     }
 
     remove() {
@@ -36,8 +53,8 @@ class Cursor {
 
 // send mouse pos
 const sendMousePos = (mouseEvent) => {
-    var x = mouseEvent.clientX / window.innerWidth;
-    var y = mouseEvent.clientY / window.innerHeight;
+    var x = (mouseEvent.clientX) / window.innerWidth;
+    var y = (mouseEvent.clientY) / window.innerHeight;
     websocket.send(JSON.stringify( {"x":x, "y":y} ));
 }
 
@@ -66,8 +83,8 @@ const join = (e) => {
         partyzone.removeChild(partyzone.firstChild);
     }
 
-    // update cursor
-    document.body.style.cursor = "url('static/cursor.png') 7 0, default";
+    // update user cursor style
+    document.body.style.cursor = "url(" + USER_CURSOR_FILE + ") " + String(CURSOR_X_OFFSET) + " " + String(CURSOR_Y_OFFSET) + ", default";
 
     // connect to websocket server
     websocket = new WebSocket("ws://localhost:8081/");
