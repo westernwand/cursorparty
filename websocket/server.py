@@ -26,10 +26,10 @@ def build_remove_message(id):
 
 async def register(websocket):
     """ Handles initial registration and websocket closure """
-    print(f"new connection received, id={websocket.id}")
+    print(f"New connection received, id={websocket.id} ({websocket.remote_address[0]}:{websocket.remote_address[1]})")
     # reject connection if connection limit reached
     if len(connections) >= MAX_NUM_CLIENTS:
-        print(f"max concurrent connection limit reached, rejecting new connection")
+        print(f"Maximum concurrent connection limit reached, rejecting new connection")
         await websocket.close(4001)
         return
     # add connection to connections set
@@ -49,7 +49,7 @@ async def register(websocket):
             # remove application state for closed websocket
             connections.remove(websocket)
             websockets.broadcast(connections, build_remove_message(websocket.id))
-            print(f"connection removed, id={websocket.id}")
+            print(f"Connection removed, id={websocket.id} ({websocket.remote_address[0]}:{websocket.remote_address[1]})")
             break
 
 
@@ -61,16 +61,19 @@ def handle_message(message, websocket):
     try:
         x, y = float(tmp["x"]), float(tmp["y"])
     except:
-        print(f"Illegal message received from {websocket.id}:\n\t{message}")
+        print(f"Illegal message received, id={websocket.id} ({websocket.remote_address[0]}:{websocket.remote_address[1]})")
         raise IllegalMessageException
     # send update to all other clients
     websockets.broadcast(connections - {websocket}, build_update_message(x, y, websocket.id))
 
 def log_application_state():
     """ Prints current application state to stdout """
-    output = f"{len(connections)} connections: "
+    if len(connections) == 0:
+        print("0 websocket connections")
+        return
+    output = f"{len(connections)} websocket connections:"
     for websocket in connections:
-        output += f"\n\t{websocket.id} - {websocket.remote_address[0]}:{websocket.remote_address[1]}"
+        output += f"\n\tid={websocket.id} ({websocket.remote_address[0]}:{websocket.remote_address[1]})"
     print(output)
 
 
@@ -78,7 +81,8 @@ async def main():
     async with websockets.serve(register, host="0.0.0.0", port=80):
         while True:
             log_application_state()
-            await asyncio.sleep(1)
+            await asyncio.sleep(15)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
