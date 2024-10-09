@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: nginx:latest
+    image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
@@ -13,6 +13,4 @@ services:
     build: ./backend
     ports:
       - "8081:8081"
-    entrypoint: ["python3", "./server.py"]
-    # todo migrate to a dedicated build step with COPY
-    # volumes are good for local development since they're live
+    entrypoint: ["python3", "-u", "./server.py"]
