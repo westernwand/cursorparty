@@ -1,18 +1,15 @@
 # cursorparty
-## description:
+## description
 cursorparty is a containerized novelty created for the purpose of encouraging cursor socialization.
 ## why?
 why not?
-## getting started guide:
-1. build it:
-```
-docker build --tag cursorparty-frontend --file .\cursorparty-frontend.dockerfile .
-docker run -it --rm -d -p 8080:80 cursorparty-frontend
-```
+## getting started guide
+1. `docker compose up --build`
 2. [localhost:8080](http://localhost:8080/)
 
-## todo:
+## todo
  - [x] spin up nginx container
+ - [x] docker compose it
  - [ ] simple frontend with nginx
  - [ ] router with python
  - [ ] swarm router containers

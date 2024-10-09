@@ -1,0 +1,7 @@
+services:
+  frontend:
+    build: 
+      context: .
+      dockerfile: cursorparty-frontend.dockerfile
+    ports:
+      - "8080:80"
