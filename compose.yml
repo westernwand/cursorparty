@@ -13,6 +13,6 @@ services:
     build: ./backend
     ports:
       - "8081:8081"
-    entrypoint: python3 ./server.py
+    entrypoint: ["python3", "./server.py"]
     # todo migrate to a dedicated build step with COPY
     # volumes are good for local development since they're live
