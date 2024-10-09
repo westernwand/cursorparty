@@ -12,11 +12,18 @@ class IllegalMessageException(Exception):
 connections = set()
 # create dict for mouse positions
 mouse_positions = {}
+# create limit on number of clients allowed to connect at once
+MAX_NUM_CLIENTS = 100
 
 
 async def register(websocket):
     """ Handles initial registration and websocket closure """
     print(f"new connection received, id={websocket.id}")
+    # reject connection if its over the connection limit
+    if len(connections) >= MAX_NUM_CLIENTS:
+        print(f"max concurrent connection limit reached, rejecting new connection")
+        await websocket.close(4001)
+        return
     # add connection to connections set
     connections.add(websocket)
     mouse_positions[websocket.id] = (-1, -1)
@@ -76,18 +83,17 @@ def broadcast_update():
                 continue
             # add mouse position to message
             message.append({
-                "id": str(key), 
-                "x": mouse_positions[key][0], 
+                "id": str(key),
+                "x": mouse_positions[key][0],
                 "y": mouse_positions[key][1]
             })
         # async send message to client (only if message is not empty)
         if len(message) > 0:
-            asyncio.create_task(websocket.send(
-                json.dumps(message, default=str)))
+            asyncio.create_task(websocket.send(json.dumps(message, default=str)))
 
 
 async def main():
-    async with websockets.serve(register, "0.0.0.0", 8081):
+    async with websockets.serve(register, host="0.0.0.0", port=8081):
         while True:
             log_application_state()
             broadcast_update()
