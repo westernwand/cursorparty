@@ -38,8 +38,8 @@ class Cursor {
         var clientX = Math.floor(this.x * window.innerWidth);
         var clientY = Math.floor(this.y * window.innerHeight);
 
-        var xPartyzone = clientX - parseInt(window.getComputedStyle(document.body).getPropertyValue('padding-left')) - CURSOR_X_OFFSET;
-        var yPartyzone = clientY - parseInt(window.getComputedStyle(document.body).getPropertyValue('padding-top')) - CURSOR_Y_OFFSET;
+        var xPartyzone = clientX - partyzone.getBoundingClientRect().x - CURSOR_X_OFFSET;
+        var yPartyzone = clientY - partyzone.getBoundingClientRect().y - CURSOR_Y_OFFSET;
 
         this.img.style.marginLeft = String(xPartyzone) + 'px';
         this.img.style.marginTop = String(yPartyzone) + 'px';
