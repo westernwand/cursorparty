@@ -2,6 +2,7 @@ import asyncio
 import websockets
 import json
 
+# generic exception to throw when clients send bad data
 class IllegalMessageException(Exception):
     pass
 
@@ -12,16 +13,14 @@ mouse_positions = {}
 
 # initial registration and closure handling
 async def register(websocket):
+    print(f"new connection received, id={websocket.id}")
     # add connection to connections set
     connections.add(websocket)
-    mouse_positions[websocket.id] = (0, 0)
-    # send message to each new connection
-    await reply_hello(websocket)
+    mouse_positions[websocket.id] = (-1, -1)
     # start main loop
     while True:
         # handle and error check each message
         async for message in websocket:
-            print(mouse_positions)
             try:
                 handle_message(message, websocket)
             except IllegalMessageException:
@@ -30,15 +29,13 @@ async def register(websocket):
         try:
             await websocket.wait_closed()
         finally:
-            cleanup_connection(websocket)
+            # remove application state for closed websocket
+            connections.remove(websocket)
+            del mouse_positions[websocket.id]
+            print(f"connection removed, id={websocket.id}")
             break
 
-def cleanup_connection(websocket):
-    connections.remove(websocket)
-    del mouse_positions[websocket.id]
-    print(f"connection removed, id={websocket.id}")
-    pretty_print_connections()
-
+# handle and error check messages from clients
 def handle_message(message, websocket):
     try:
         tmp = json.loads(message)
@@ -47,29 +44,19 @@ def handle_message(message, websocket):
         print(f"Illegal message received from {websocket.id}, closing connection")
         raise IllegalMessageException
 
-# send initial response
-async def reply_hello(websocket):
-    print(f"new connection received, id={websocket.id}")
-    pretty_print_connections()
-    await websocket.send("welcome to cursorparty! :^)")
-
-# helper for logging connections state
-def pretty_print_connections():
+# log current application state
+def log_application_state():
     output = f"{len(connections)} connections: "
     for conn in connections:
-        output += f"{{{conn.id}-{conn.remote_address[0]}:{conn.remote_address[1]}}} "
+        output += f"\n\t{conn.id} - {conn.remote_address[0]}:{conn.remote_address[1]} - ({mouse_positions[conn.id][0]},{mouse_positions[conn.id][0]})"
     print(output)
-
-# runs every 10 seconds, logs all connections and mouse positions
-async def log_connections():
-    while True:
-        pretty_print_connections()
-        print(mouse_positions)
-        await asyncio.sleep(10)
 
 async def main():
     async with websockets.serve(register, "0.0.0.0", 8081):
-        await log_connections()
+        while True:
+            # log application state every 5 seconds
+            log_application_state()
+            await asyncio.sleep(5)
 
 if __name__ == "__main__":
     asyncio.run(main())
