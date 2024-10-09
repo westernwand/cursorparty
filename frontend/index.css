@@ -31,3 +31,8 @@ body {
     text-decoration: underline;
     cursor: pointer;
 }
+
+.cursor {
+    filter: brightness(50%);
+    position: absolute;
+}

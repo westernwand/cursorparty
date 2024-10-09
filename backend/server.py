@@ -63,8 +63,8 @@ def handle_message(message, websocket):
     except:
         print(f"Illegal message received from {websocket.id}:\n\t{message}")
         raise IllegalMessageException
-    websockets.broadcast(connections, build_update_message(x, y, websocket.id))
-
+    # send update to all other clients
+    websockets.broadcast(connections - {websocket}, build_update_message(x, y, websocket.id))
 
 def log_application_state():
     """ Prints current application state to stdout """
