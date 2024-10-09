@@ -10,23 +10,30 @@ class IllegalMessageException(Exception):
 
 # create set for current connections
 connections = set()
-# create dict for mouse positions
-mouse_positions = {}
 # create limit on number of clients allowed to connect at once
 MAX_NUM_CLIENTS = 100
 
 
+def build_update_message(x, y, id):
+    """ Create templated update message """
+    message = {"id": str(id), "x":x, "y":y, "type":"update"}
+    return json.dumps(message)
+
+def build_remove_message(id):
+    """ Create templated remove message """
+    message = {"id":str(id), "type":"remove"}
+    return json.dumps(message)
+
 async def register(websocket):
     """ Handles initial registration and websocket closure """
     print(f"new connection received, id={websocket.id}")
-    # reject connection if its over the connection limit
+    # reject connection if connection limit reached
     if len(connections) >= MAX_NUM_CLIENTS:
         print(f"max concurrent connection limit reached, rejecting new connection")
         await websocket.close(4001)
         return
     # add connection to connections set
     connections.add(websocket)
-    mouse_positions[websocket.id] = (-1, -1)
     # start main loop
     while True:
         # handle and error check each message
@@ -41,62 +48,36 @@ async def register(websocket):
         finally:
             # remove application state for closed websocket
             connections.remove(websocket)
-            del mouse_positions[websocket.id]
+            websockets.broadcast(connections, build_remove_message(websocket.id))
             print(f"connection removed, id={websocket.id}")
             break
 
 
 def handle_message(message, websocket):
     """ Handle and error check messages from clients """
+    tmp = json.loads(message)
+    x = None
+    y = None
     try:
-        tmp = json.loads(message)
-        mouse_positions[websocket.id] = (float(tmp["x"]), float(tmp["y"]))
+        x, y = float(tmp["x"]), float(tmp["y"])
     except:
-        print(f"Illegal message received from {
-              websocket.id}, closing connection\n\t{message}")
+        print(f"Illegal message received from {websocket.id}:\n\t{message}")
         raise IllegalMessageException
+    websockets.broadcast(connections, build_update_message(x, y, websocket.id))
 
 
 def log_application_state():
     """ Prints current application state to stdout """
     output = f"{len(connections)} connections: "
     for websocket in connections:
-        output += f"\n\t{websocket.id} - {websocket.remote_address[0]}:{
-            websocket.remote_address[1]} - ({mouse_positions[websocket.id][0]},{mouse_positions[websocket.id][0]})"
+        output += f"\n\t{websocket.id} - {websocket.remote_address[0]}:{websocket.remote_address[1]}"
     print(output)
-
-
-def broadcast_update():
-    """ Sends the current cursor state to each active, connected client """
-    for websocket in connections:
-        # skip sending to inactive websockets
-        if mouse_positions[websocket.id] == (-1, -1):
-            continue
-        # create message to send to clients
-        message = []
-        for key in mouse_positions:
-            # skip if mouse_positions has not been updated yet (indicating inactive connection)
-            if mouse_positions[key] == (-1, -1):
-                continue
-            # skip if sending current websocket's position to current websocket
-            if key == websocket.id:
-                continue
-            # add mouse position to message
-            message.append({
-                "id": str(key),
-                "x": mouse_positions[key][0],
-                "y": mouse_positions[key][1]
-            })
-        # async send message to client (only if message is not empty)
-        if len(message) > 0:
-            asyncio.create_task(websocket.send(json.dumps(message, default=str)))
 
 
 async def main():
     async with websockets.serve(register, host="0.0.0.0", port=8081):
         while True:
             log_application_state()
-            broadcast_update()
             await asyncio.sleep(1)
 
 if __name__ == "__main__":
