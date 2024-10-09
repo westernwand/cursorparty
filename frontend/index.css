@@ -1,15 +1,19 @@
-html, body {
+html {
+    height: 100%;
+}
+
+body {
     height: 100%;
     width: 100%;
     margin: 0;
 }
 
-.partyzone {
+#partyzone {
     background-color: midnightblue;
     min-height: 100%;
 }
 
-h1 {
+#cursorparty-header {
     text-align: center;
     color: white;
     padding-top: 20%;
@@ -17,7 +21,7 @@ h1 {
     margin: 0;
 }
 
-button {
+#join-button {
     margin: auto;
     width: auto;
     display: block;
