@@ -24,7 +24,7 @@ class Cursor {
         // create new cursor image
         this.img = document.createElement('img');
         this.img.src = OTHER_CURSOR_FILE;
-        this.img.class = 'cursor';
+        this.img.className = 'cursor';
         partyzone.appendChild(this.img);
     }
 
@@ -41,8 +41,8 @@ class Cursor {
         var xPartyzone = clientX - partyzone.getBoundingClientRect().x - CURSOR_X_OFFSET;
         var yPartyzone = clientY - partyzone.getBoundingClientRect().y - CURSOR_Y_OFFSET;
 
-        this.img.style.marginLeft = String(xPartyzone) + 'px';
-        this.img.style.marginTop = String(yPartyzone) + 'px';
+        this.img.style.left = String(xPartyzone) + 'px';
+        this.img.style.top = String(yPartyzone) + 'px';
     }
 
     remove() {
