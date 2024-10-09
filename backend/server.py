@@ -13,10 +13,10 @@ mouse_positions = {}
 
 # initial registration and closure handling
 async def register(websocket):
-    print(f"new connection received, id={str(websocket.id)}")
+    print(f"new connection received, id={websocket.id}")
     # add connection to connections set
     connections.add(websocket)
-    mouse_positions[str(websocket.id)] = (-1, -1)
+    mouse_positions[websocket.id] = (-1, -1)
     # start main loop
     while True:
         # handle and error check each message
@@ -31,37 +31,51 @@ async def register(websocket):
         finally:
             # remove application state for closed websocket
             connections.remove(websocket)
-            del mouse_positions[str(websocket.id)]
-            print(f"connection removed, id={str(websocket.id)}")
+            del mouse_positions[websocket.id]
+            print(f"connection removed, id={websocket.id}")
             break
 
 # handle and error check messages from clients
 def handle_message(message, websocket):
     try:
         tmp = json.loads(message)
-        mouse_positions[str(websocket.id)] = (float(tmp["x"]), float(tmp["y"]))
+        mouse_positions[websocket.id] = (float(tmp["x"]), float(tmp["y"]))
     except:
-        print(f"Illegal message received from {str(websocket.id)}, closing connection\n\t{message}")
+        print(f"Illegal message received from {websocket.id}, closing connection\n\t{message}")
         raise IllegalMessageException
 
 # log current application state
 def log_application_state():
     output = f"{len(connections)} connections: "
-    for conn in connections:
-        output += f"\n\t{str(conn.id)} - {conn.remote_address[0]}:{conn.remote_address[1]} - ({mouse_positions[str(conn.id)][0]},{mouse_positions[str(conn.id)][0]})"
+    for websocket in connections:
+        output += f"\n\t{websocket.id} - {websocket.remote_address[0]}:{websocket.remote_address[1]} - ({mouse_positions[websocket.id][0]},{mouse_positions[websocket.id][0]})"
     print(output)
 
-# broadcast mouse connection update
+# sends a mouse connection update to each active, connected client
 def broadcast_update():
-    # TODO remove each connection's own position
-    websockets.broadcast(connections, json.dumps(mouse_positions))
+    for websocket in connections:
+        # skip sending to inactive websockets
+        if mouse_positions[websocket.id] == (-1, -1):
+            continue
+        # rebuild mouse_positions dict without current mouse position
+        new_dict = {}
+        for key in mouse_positions:
+            # skip if mouse_positions has not been updated yet (indicating inactive connection)
+            if mouse_positions[key] == (-1, -1):
+                continue
+            # skip if sending current websocket's position to current websocket
+            if key == websocket.id:
+                continue
+            # add valid positions to new_dict (adding str because json.dumps is having issues with UUIDs as keys)
+            new_dict[str(key)] = mouse_positions[key]
+        # async send message to client (only if new_dict is not empty)
+        if new_dict:
+            asyncio.create_task(websocket.send(json.dumps(new_dict, default=str)))
 
 async def main():
     async with websockets.serve(register, "0.0.0.0", 8081):
         while True:
-            # log application state every 1 seconds
             log_application_state()
-            # broadcast mouse position updates
             broadcast_update()
             await asyncio.sleep(1)
 
