@@ -1,8 +1,8 @@
 # cursorparty
 ## description
-cursorparty is a containerized novelty created for the purpose of encouraging cursor socialization.
+cursorparty is a containerized novelty consisting of a React frontend with an Express backend.
 ## why?
-why not?
+cursors need to get out more.
 ## getting started guide
 1. `docker compose up --build`
 2. [localhost:8080](http://localhost:8080/)
