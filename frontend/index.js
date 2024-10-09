@@ -3,7 +3,9 @@ var websocket;
 
 // send mouse pos
 const sendMousePos = (mouseEvent) => {
-    websocket.send(JSON.stringify( {"x":mouseEvent.clientX, "y":mouseEvent.clientY} ));
+    var x = mouseEvent.clientX / window.innerWidth
+    var y = mouseEvent.clientY / window.innerHeight
+    websocket.send(JSON.stringify( {"x":x, "y":y} ));
     // TODO determine if needs to be screenX/screenY, pageX/pageY for cursors to line up
 }
 // TODO remove this testing function
@@ -20,7 +22,7 @@ const join = (e) => {
     }
 
     // update cursor
-    partyzone.style.cursor = "url('static/cursor.png') 7 0,default";
+    document.body.style.cursor = "url('static/cursor.png') 7 0, default";
 
     // connect to websocket server
     websocket = new WebSocket("ws://localhost:8081/");
