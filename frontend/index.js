@@ -3,8 +3,12 @@ var websocket;
 
 // send mouse pos
 const sendMousePos = (mouseEvent) => {
-    websocket.send(JSON.stringify({x:mouseEvent.clientX, y:mouseEvent.clientY}));
+    websocket.send(JSON.stringify( {"x":mouseEvent.clientX, "y":mouseEvent.clientY} ));
     // TODO determine if needs to be screenX/screenY, pageX/pageY for cursors to line up
+}
+// TODO remove this testing function
+const sendIllegalMessage = (mouseEvent) => {
+    websocket.send(JSON.stringify( {y:3, x:"alert(1)"} ))
 }
 
 // join cursorparty
@@ -25,9 +29,15 @@ const join = (e) => {
     websocket.onmessage = ( {data} ) => {
         console.log(data);
     }
+    websocket.onclose = () => {
+        // TODO add visual stating that connection has closed
+        console.log("connection closed")
+    }
 
     // add onmousemove listener
     partyzone.addEventListener("mousemove", sendMousePos)
+    // TODO remove this testing function
+    partyzone.addEventListener("dblclick", sendIllegalMessage)
 }
 
 // when DOM loads, add onclick to join button
