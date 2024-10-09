@@ -1,16 +1,11 @@
 services:
-  frontend:
-    image: nginx:alpine
+  nginx-server:
+    build: ./nginx-server
     ports:
       - "8080:80"
-    volumes:
-      - "./frontend:/usr/share/nginx/html"
-    # todo migrate to a dedicated build step with COPY
-    # volumes are good for local development since they're live
 
-  backend:
-    image: backend
-    build: ./backend
+  websocket:
+    build: ./websocket
     ports:
-      - "8081:8081"
+      - "80"
     entrypoint: ["python3", "-u", "./server.py"]

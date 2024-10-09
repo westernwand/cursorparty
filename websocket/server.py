@@ -75,7 +75,7 @@ def log_application_state():
 
 
 async def main():
-    async with websockets.serve(register, host="0.0.0.0", port=8081):
+    async with websockets.serve(register, host="0.0.0.0", port=80):
         while True:
             log_application_state()
             await asyncio.sleep(1)

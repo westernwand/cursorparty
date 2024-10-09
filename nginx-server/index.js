@@ -87,7 +87,7 @@ const join = (e) => {
     document.body.style.cursor = "url(" + USER_CURSOR_FILE + ") " + String(CURSOR_X_OFFSET) + " " + String(CURSOR_Y_OFFSET) + ", default";
 
     // connect to websocket server
-    websocket = new WebSocket("ws://localhost:8081/");
+    websocket = new WebSocket("ws://localhost:8080/party");
 
     websocket.onmessage = ( {data} ) => {
         var json_data = JSON.parse(data);

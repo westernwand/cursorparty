@@ -1,19 +1,22 @@
-# cursorparty
-## description
-cursorparty is a containerized novelty.
+# Cursorparty
+## Description
+Cursorparty is a containerized novelty.
 
-## why?
-cursors need to get out more. the end goal of this project is to create a web application where your cursor can hang out with other cursors in a safe and friendly environment!
+## Why?
+Cursors need to get out more. Cursorparty is a safe and friendly environment where your cursor can hang out with other cursors!
 
-## getting started guide
+## Installation
 1. `sudo docker compose up --build`
 2. [localhost:8080](http://localhost:8080/)
 
-## current architecture
+## Current Architecture
 ![cursorparty-architecture](cursorparty-architecture.png)
 
-## goals of this project
- - make something fun and quirky
- - actually learn and implement something with docker
- - learn and implement something with websockets
- - design and implement a grossly over-engineered architecture with load balancing and scaling
+## Goals
+ - Make something fun and quirky
+ - Actually learn and implement something with Docker
+    - Dockerfiles
+    - Networking
+    - Compose
+ - Implement something with Websockets
+ - Write some HTML, CSS, Javascript, and Python
