@@ -1,6 +1,6 @@
 // file location for cursor png
-const USER_CURSOR_FILE = 'static/cursor.png';
-const OTHER_CURSOR_FILE = 'static/cursor_gray.png';
+const USER_CURSOR_FILE = './static/cursor.png';
+const OTHER_CURSOR_FILE = './static/cursor_gray.png';
 // pixel offsets for locating the "point" of the cursor png
 const CURSOR_X_OFFSET = 7;
 const CURSOR_Y_OFFSET = 0;
@@ -84,10 +84,10 @@ const join = (e) => {
     }
 
     // update user cursor style
-    document.body.style.cursor = "url(" + USER_CURSOR_FILE + ") " + String(CURSOR_X_OFFSET) + " " + String(CURSOR_Y_OFFSET) + ", default";
+    partyzone.style.cursor = "url(" + USER_CURSOR_FILE + ") " + String(CURSOR_X_OFFSET) + " " + String(CURSOR_Y_OFFSET) + ", default";
 
     // connect to websocket server
-    websocket = new WebSocket("ws://localhost:8080/party");
+    websocket = new WebSocket("./party");
 
     websocket.onmessage = ( {data} ) => {
         var json_data = JSON.parse(data);

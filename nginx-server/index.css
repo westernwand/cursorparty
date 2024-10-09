@@ -4,6 +4,7 @@ body {
     margin: 0;
     padding: 25px;
     background: rgba(80, 80, 80, 1);
+    cursor: default;
 }
 
 #partyzone {
